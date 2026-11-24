@@ -1,93 +1,56 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // ===========================================================
-  //       MOSTRAR ERRORES DE PHP EN REGISTRO Y LOGIN
-  // ===========================================================
-  const urlParams = new URLSearchParams(window.location.search);
-  const error = urlParams.get("error");
-  const registered = urlParams.get("registered");
+  const inViews = window.location.pathname.includes("/views/");
+  const authBase = inViews
+    ? "../assets/app/controllers/AuthController.php"
+    : "assets/app/controllers/AuthController.php";
 
-  const errorMessages = {
-    empty: "Todos los campos son obligatorios",
-    invalid_email: "El formato del correo no es válido",
-    weak_password: "La contraseña debe tener al menos 6 caracteres",
-    password_mismatch: "Las contraseñas no coinciden",
-    email_exists: "Este correo electrónico ya está registrado",
-    username_exists: "Este nombre de usuario ya existe",
-    duplicate_data: "El correo o nombre de usuario ya están en uso",
-    database: "Error de base de datos. Intenta nuevamente",
-    register_failed: "No se pudo completar el registro",
-    login: "Correo o contraseña incorrectos",
-    server: "Error del servidor. Intenta más tarde",
-    connection: "No se pudo conectar a la base de datos",
-    invalid_action: "Acción no válida",
-  };
-
-  if (error && errorMessages[error]) {
-    const alertDiv = document.createElement("div");
-    alertDiv.className = "alert-error";
-    alertDiv.innerHTML = `
-      <span>${errorMessages[error]}</span>
-      <button class="alert-close">&times;</button>
-    `;
-
-    const loginBox =
-      document.querySelector(".login-box") ||
-      document.querySelector(".register-box");
-    if (loginBox) {
-      loginBox.insertBefore(alertDiv, loginBox.firstChild);
-    } else {
-      document.body.insertBefore(alertDiv, document.body.firstChild);
-    }
-
-    const closeBtn = alertDiv.querySelector(".alert-close");
-    closeBtn.addEventListener("click", () => {
-      alertDiv.remove();
-      window.history.replaceState({}, document.title, window.location.pathname);
-    });
-
-    setTimeout(() => {
-      if (alertDiv.parentElement) {
-        alertDiv.remove();
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        );
-      }
-    }, 5000);
+  // Limpiar cualquier parámetro técnico residual en la URL (0 parámetros expuestos)
+  if (window.location.search && (document.querySelector(".login-box") || document.querySelector(".register-box"))) {
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  if (registered === "1") {
-    const successDiv = document.createElement("div");
-    successDiv.className = "alert-success";
-    successDiv.innerHTML = `
-      <span>Registro exitoso. Ya puedes iniciar sesión</span>
-      <button class="alert-close">&times;</button>
-    `;
+  // Eliminar cualquier bandera insegura previa en almacenamiento del navegador
+  localStorage.removeItem("usuarioLogeado");
+  localStorage.removeItem("user_rol");
+  sessionStorage.removeItem("Usuario");
 
-    const loginBox =
-      document.querySelector(".login-box") ||
-      document.querySelector(".register-box");
-    if (loginBox) {
-      loginBox.insertBefore(successDiv, loginBox.firstChild);
-    }
+  // ===========================================================
+  //   MENSAJES CONTROLADOS DESDE SESIÓN EN SERVIDOR (SIN ?error=)
+  // ===========================================================
+  function renderAuthAlert(type, message) {
+    const box = document.querySelector(".login-box") || document.querySelector(".register-box");
+    if (!box || !message) return;
 
-    const closeBtn = successDiv.querySelector(".alert-close");
-    closeBtn.addEventListener("click", () => {
-      successDiv.remove();
-      window.history.replaceState({}, document.title, window.location.pathname);
-    });
+    const alertDiv = document.createElement("div");
+    alertDiv.className = type === "success" ? "alert-success" : "alert-error";
 
+    const span = document.createElement("span");
+    span.textContent = message;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "alert-close";
+    closeBtn.type = "button";
+    closeBtn.innerHTML = "&times;";
+
+    alertDiv.appendChild(span);
+    alertDiv.appendChild(closeBtn);
+    box.insertBefore(alertDiv, box.firstChild);
+
+    closeBtn.addEventListener("click", () => alertDiv.remove());
     setTimeout(() => {
-      if (successDiv.parentElement) {
-        successDiv.remove();
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        );
-      }
-    }, 5000);
+      if (alertDiv.parentElement) alertDiv.remove();
+    }, 7000);
+  }
+
+  if (document.querySelector(".login-box") || document.querySelector(".register-box")) {
+    fetch(`${authBase}?action=flash`, { credentials: "same-origin" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.success && data.flash && data.flash.message) {
+          renderAuthAlert(data.flash.type, data.flash.message);
+        }
+      })
+      .catch(() => {});
   }
 
   // ===========================================================
@@ -97,10 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
     '.login-box form[action*="AuthController.php"][method="POST"]'
   );
 
-  if (
-    loginForm &&
-    loginForm.querySelector('input[name="action"][value="login"]')
-  ) {
+  if (loginForm && loginForm.querySelector('input[name="action"][value="login"]')) {
     const emailInput = loginForm.querySelector('input[type="email"]');
     const passInput = loginForm.querySelector('input[type="password"]');
 
@@ -147,10 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
         hasError = true;
       }
 
-      if (!hasError) {
-        localStorage.setItem("usuarioLogeado", "true");
-      }
-
       if (hasError) e.preventDefault();
     });
   }
@@ -159,21 +115,16 @@ document.addEventListener("DOMContentLoaded", function () {
   //                 VALIDACIÓN REGISTRO
   // ===========================================================
   const registerForm = document.querySelector(
-    '.login-box form[action*="AuthController.php"][method="POST"]'
+    '.register-box form[action*="AuthController.php"][method="POST"]'
   );
 
-  if (
-    registerForm &&
-    registerForm.querySelector('input[name="action"][value="register"]')
-  ) {
+  if (registerForm && registerForm.querySelector('input[name="action"][value="register"]')) {
     const nameInput =
-      registerForm.querySelector('input[name="name"]') ||
-      registerForm.querySelector('input[name="nombre"]');
+      registerForm.querySelector('input[name="nombre"]') ||
+      registerForm.querySelector('input[name="name"]');
     const emailInput = registerForm.querySelector('input[name="email"]');
     const passInput = registerForm.querySelector('input[name="password"]');
-    const confirmInput = registerForm.querySelector(
-      'input[name="confirm_password"]'
-    );
+    const confirmInput = registerForm.querySelector('input[name="confirm_password"]');
 
     function createErrorEl(text) {
       const el = document.createElement("div");
@@ -198,9 +149,9 @@ document.addEventListener("DOMContentLoaded", function () {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    [nameInput, emailInput, passInput, confirmInput].forEach((input) =>
-      input.addEventListener("input", () => removeError(input))
-    );
+    [nameInput, emailInput, passInput, confirmInput].forEach((input) => {
+      if (input) input.addEventListener("input", () => removeError(input));
+    });
 
     registerForm.addEventListener("submit", function (e) {
       let hasError = false;
@@ -234,11 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
         hasError = true;
       }
 
-      if (!hasError) {
-        return;
-      }
-
-      e.preventDefault();
+      if (hasError) e.preventDefault();
     });
   }
 
@@ -249,17 +196,14 @@ document.addEventListener("DOMContentLoaded", function () {
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function (e) {
       e.preventDefault();
-
-      sessionStorage.removeItem("Usuario");
-      localStorage.removeItem("Usuario");
-      localStorage.removeItem("usuarioLogeado");
-
-      window.location.href = "../assets/app/controllers/LogoutController.php";
+      window.location.href = inViews
+        ? "../assets/app/controllers/LogoutController.php"
+        : "assets/app/controllers/LogoutController.php";
     });
   }
 
   // ===========================================================
-  //           MODAL DE CARRITO (SOLO INDEX.HTML)
+  //           MODAL GLOBAL DE NOTIFICACIÓN
   // ===========================================================
   (function insertGlobalNotification() {
     if (document.getElementById("globalNotification")) return;
@@ -280,21 +224,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.body.appendChild(modal);
 
-    document
-      .getElementById("globalCloseBtn")
-      .addEventListener("click", function () {
-        document.getElementById("globalNotification").classList.add("oculto");
-      });
+    document.getElementById("globalCloseBtn").addEventListener("click", function () {
+      document.getElementById("globalNotification").classList.add("oculto");
+    });
   })();
 
   window.showNotification = function (options) {
     const modal = document.getElementById("globalNotification");
     const msg = document.getElementById("globalNotificationMessage");
     const primary = document.getElementById("globalPrimaryBtn");
+    const secondary = document.getElementById("globalSecondaryBtn");
 
     msg.textContent = options.message || "";
-
-    const secondary = document.getElementById("globalSecondaryBtn");
 
     if (options.primaryText) {
       primary.textContent = options.primaryText;
@@ -311,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function () {
         primary.setAttribute("href", "#");
         primary.onclick = function (e) {
           e.preventDefault();
-          document.getElementById("globalNotification").classList.add("oculto");
+          modal.classList.add("oculto");
         };
       }
       primary.style.display = "";
@@ -324,17 +265,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (options.secondaryHref) {
         secondary.setAttribute("href", options.secondaryHref);
         secondary.onclick = null;
-      } else if (typeof options.onSecondary === "function") {
-        secondary.setAttribute("href", "#");
-        secondary.onclick = function (e) {
-          e.preventDefault();
-          options.onSecondary();
-        };
       } else {
         secondary.setAttribute("href", "#");
         secondary.onclick = function (e) {
           e.preventDefault();
-          document.getElementById("globalNotification").classList.add("oculto");
+          modal.classList.add("oculto");
         };
       }
       secondary.style.display = "";
@@ -355,25 +290,29 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  document.body.addEventListener("click", function (e) {
+  // Verificar sesión real en servidor al pulsar el botón público de carrito
+  document.body.addEventListener("click", async function (e) {
     const target = e.target.closest(".btn-carrito");
     if (!target) return;
 
-    const isLogged =
-      !!localStorage.getItem("usuarioLogeado") ||
-      !!sessionStorage.getItem("Usuario");
-    if (!isLogged) {
-      e.preventDefault();
-      const loginHref =
-        location.pathname && location.pathname.split("/").length > 2
-          ? "views/login.html"
-          : "views/login.html";
-      showNotification({
-        message:
-          "Por favor inicia sesión o regístrate para acceder al carrito.",
-        primaryText: "Aceptar",
-        type: "info",
+    e.preventDefault();
+    try {
+      const res = await fetch(`${authBase}?action=session_status`, {
+        credentials: "same-origin",
       });
-    }
+      const data = res.ok ? await res.json() : null;
+      if (data && data.authenticated) {
+        window.location.href = inViews ? "Carrito.php" : "views/Carrito.php";
+        return;
+      }
+    } catch (_) {}
+
+    const loginHref = inViews ? "login.html" : "views/login.html";
+    showNotification({
+      message: "Por favor inicia sesión o regístrate para acceder al carrito.",
+      primaryText: "Iniciar Sesión",
+      primaryHref: loginHref,
+      type: "info",
+    });
   });
 });

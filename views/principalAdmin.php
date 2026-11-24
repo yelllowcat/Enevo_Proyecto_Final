@@ -1,18 +1,11 @@
 <?php
-session_start();
+require_once __DIR__ . '/../assets/app/config/SessionSecurity.php';
 
-// Verificar si el usuario está logueado Y es admin
-if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'admin') {
-  header('Location: login.html');
-  exit();
-}
+// Validación estricta de sesión activa y rol administrador en el servidor (ISO 27001 Control 5.15)
+SessionSecurity::requireAdmin('login.html');
 
 $userName = $_SESSION['user_nombre'] ?? 'Admin';
 ?>
-
-<!DOCTYPE html>
-<html lang="es">
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -38,15 +31,15 @@ $userName = $_SESSION['user_nombre'] ?? 'Admin';
       <a href="ClientesAdmin.php">Clientes</a>
       <a href="Ventas.php">Ventas</a>
 
-
       <div class="user-section">
-        <span class="user-link"> <?php echo htmlspecialchars($userName); ?> </span>
+        <span class="user-link"><?php echo htmlspecialchars($userName, ENT_QUOTES, 'UTF-8'); ?></span>
         <button id="logoutBtn" class="logout-btn">
           <img src="../assets/img/cerrar-sesion.png" alt="Cerrar sesión">
         </button>
       </div>
     </div>
   </nav>
+
   <main>
     <!-- ===== HERO ===== -->
     <section class="hero">
@@ -54,38 +47,14 @@ $userName = $_SESSION['user_nombre'] ?? 'Admin';
       <img src="../assets/img/DarkSoulsGIF.gif" alt="Dark Souls Banner">
     </section>
 
-    <!-- ===== NOVEDADES DESTACADAS ===== -->
+    <!-- ===== CATÁLOGO DINÁMICO DESDE MYSQL ===== -->
     <section class="novedades">
       <div class="novedades-titulo">
         <h2>Novedades Destacadas</h2>
       </div>
-
-      <div class="card">
-        <img src="../assets/img/DarksoulsRemastered.jpg" alt="Dark Souls Remastered">
-        <div class="info">
-          <h3>Dark Souls: Remastered</h3>
-          <p class="precio"><span>Desde 549 mx</span><br>10 Puntos</p>
-          <button>Más detalles</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <img src="../assets/img/Logo33.png" alt="Clair Obscur: Expedition 33">
-        <div class="info">
-          <h3>Clair Obscur: Expedition 33</h3>
-          <p class="precio"><span>Desde 710 mx</span><br>10 Puntos</p>
-          <button>Más detalles</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <img src="../assets/img/LogoRisk.png" alt="Risk of Rain 2">
-        <div class="info">
-          <h3>Risk of Rain 2</h3>
-          <p class="precio"><span>Desde 233 mx</span><br>10 Puntos</p>
-          <button>Más detalles</button>
-        </div>
-      </div>
+      <p class="catalogo-loading" style="text-align: center; color: #aaa; padding: 20px;">
+        Cargando catálogo desde base de datos...
+      </p>
     </section>
   </main>
 
@@ -99,10 +68,8 @@ $userName = $_SESSION['user_nombre'] ?? 'Admin';
     </div>
   </footer>
 
-  <!-- Script principal -->
-   <script src="../assets/js/juegos.js"></script>
+  <script src="../assets/js/juegos.js"></script>
   <script src="../assets/js/main.js"></script>
-
 </body>
 
 </html>

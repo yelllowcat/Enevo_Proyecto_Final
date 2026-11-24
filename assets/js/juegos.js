@@ -1,83 +1,80 @@
 // ============================================
-// JUEGOS.JS - Manejo de juegos dinámicos
+// JUEGOS.JS - Catálogo dinámico desacoplado desde MySQL
 // ============================================
 
 window.addEventListener("DOMContentLoaded", function () {
-  console.log("Cargando juegos desde la base de datos...");
   cargarJuegos();
 });
 
 async function cargarJuegos() {
+  const novedadesSection = document.querySelector(".novedades");
+  if (!novedadesSection) return;
+
   try {
-    const isIndexPage =
-      window.location.pathname.endsWith("index.html") ||
-      window.location.pathname.endsWith("/");
+    const inViews = window.location.pathname.includes("/views/");
+    const rutaController = inViews
+      ? "../assets/app/controllers/JuegoController.php?action=getAll"
+      : "assets/app/controllers/JuegoController.php?action=getAll";
 
-    const rutaController = isIndexPage
-      ? "assets/app/controllers/JuegoController.php?action=getAll"
-      : "../assets/app/controllers/JuegoController.php?action=getAll";
+    const response = await fetch(rutaController, {
+      headers: { Accept: "application/json" },
+    });
 
-    console.log(" Ruta del fetch:", rutaController);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
 
-    const response = await fetch(rutaController);
     const data = await response.json();
 
-    console.log("Juegos cargados:", data);
+    const loadingEl = novedadesSection.querySelector(".catalogo-loading");
+    if (loadingEl) loadingEl.remove();
 
-    if (data.success && data.data.length > 0) {
+    if (data.success && Array.isArray(data.data) && data.data.length > 0) {
       mostrarJuegos(data.data);
     } else {
-      mostrarMensaje("No hay juegos disponibles");
+      mostrarMensaje("No hay juegos disponibles en el catálogo actualmente.");
     }
   } catch (error) {
     console.error("Error al cargar juegos:", error);
-    mostrarMensaje("Error al cargar los juegos");
+    const loadingEl = novedadesSection.querySelector(".catalogo-loading");
+    if (loadingEl) loadingEl.remove();
+    mostrarMensaje("El catálogo no está disponible temporalmente. Intenta más tarde.");
   }
 }
 
 function mostrarJuegos(juegos) {
   const novedadesSection = document.querySelector(".novedades");
+  if (!novedadesSection) return;
 
-  if (!novedadesSection) {
-    console.error("No se encontró la sección .novedades");
-    return;
-  }
+  novedadesSection.querySelectorAll(".card, .catalogo-loading").forEach((el) => el.remove());
 
-  const cardsExistentes = novedadesSection.querySelectorAll(".card");
-  cardsExistentes.forEach((card) => card.remove());
-
-  const isIndexPage =
-    window.location.pathname.endsWith("index.html") ||
-    window.location.pathname.endsWith("/");
-  const rutaImg = isIndexPage ? "assets/img/" : "../assets/img/";
+  const inViews = window.location.pathname.includes("/views/");
+  const rutaImg = inViews ? "../assets/img/" : "assets/img/";
 
   juegos.forEach((juego) => {
-    const puntos = Math.floor(juego.precio / 50);
+    const precioNum = parseFloat(juego.precio) || 0;
+    const puntos = Math.floor(precioNum / 10);
 
     const card = document.createElement("div");
     card.className = "card";
 
     card.innerHTML = `
-            <img 
-                src="${rutaImg}juego_${juego.id}.jpg" 
-                alt="${escapeHtml(juego.nombre)}"
-                onerror="this.src='${rutaImg}default_game.jpg'" 
-            />
-            <div class="info">
-                <h3>${escapeHtml(juego.nombre)}</h3>
-                <p class="precio">
-                    <span>Desde ${parseFloat(juego.precio).toFixed(
-                      2
-                    )} mx</span><br>
-                    ${puntos} Puntos
-                </p>
-                <button type="button" class="btn-mas-detalles" data-juego-id="${
-                  juego.id
-                }">
-                    Más detalles
-                </button>
-            </div>
-        `;
+      <img
+        src="${rutaImg}juego_${encodeURIComponent(juego.id)}.jpg"
+        alt="${escapeHtml(juego.nombre)}"
+        onerror="this.onerror=null;this.src='${rutaImg}LogoEnevo.png';"
+      />
+      <div class="info">
+        <h3>${escapeHtml(juego.nombre)}</h3>
+        <p class="precio">
+          <span>Desde ${precioNum.toFixed(2)} MXN</span><br>
+          ${puntos} Puntos
+        </p>
+        <button type="button" class="btn-mas-detalles" data-juego-id="${encodeURIComponent(juego.id)}">
+          Más detalles
+        </button>
+      </div>
+    `;
 
     novedadesSection.appendChild(card);
   });
@@ -89,22 +86,31 @@ function agregarEventosDetalles() {
   const botones = document.querySelectorAll(".btn-mas-detalles");
 
   botones.forEach((btn) => {
+    if (btn.dataset.hasListener) return;
+    btn.dataset.hasListener = "true";
+
     btn.addEventListener("click", function () {
       const juegoId = this.getAttribute("data-juego-id");
-      redirigirADetalles(juegoId);
+      if (juegoId) {
+        redirigirADetalles(juegoId);
+      }
     });
   });
 }
 
 function redirigirADetalles(juegoId) {
   const pathname = window.location.pathname;
+  const inViews = pathname.includes("/views/");
 
-  if (pathname.includes("principal.php")) {
-    window.location.href = `MasDetalles.php?id=${juegoId}`;
-  } else if (pathname.includes("principalAdmin.php")) {
-    window.location.href = `MasDetallesAdmin.php?id=${juegoId}`;
+  if (pathname.includes("principalAdmin.php")) {
+    window.location.href = `MasDetallesAdmin.php?id=${encodeURIComponent(juegoId)}`;
+  } else if (pathname.includes("principal.php")) {
+    window.location.href = `MasDetalles.php?id=${encodeURIComponent(juegoId)}`;
   } else {
-    window.location.href = `views/MasDetallesNoLogin.html?id=${juegoId}`;
+    const target = inViews
+      ? `MasDetallesNoLogin.html?id=${encodeURIComponent(juegoId)}`
+      : `views/MasDetallesNoLogin.html?id=${encodeURIComponent(juegoId)}`;
+    window.location.href = target;
   }
 }
 
@@ -123,6 +129,6 @@ function mostrarMensaje(mensaje) {
 
 function escapeHtml(text) {
   const div = document.createElement("div");
-  div.textContent = text;
+  div.textContent = text ?? "";
   return div.innerHTML;
 }

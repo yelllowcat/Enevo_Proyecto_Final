@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SESSION['user_rol'] === 'admin') {
-    header('Location: admin.php');
+    header('Location: principalAdmin.php');
     exit();
 }
 

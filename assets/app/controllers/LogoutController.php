@@ -1,29 +1,44 @@
 <?php
-session_start();
+/**
+ * LogoutController.php
+ * Cierre seguro y destrucción completa de sesión en servidor
+ */
 
-$_SESSION = array();
+require_once __DIR__ . '/../config/SessionSecurity.php';
 
-// Destruir la cookie de sesión si existe
-if (isset($_COOKIE[session_name()])) {
-    setcookie(session_name(), '', time()-3600, '/');
+SessionSecurity::startSecureSession();
+SessionSecurity::preventCaching();
+
+$_SESSION = [];
+
+if (ini_get('session.use_cookies')) {
+    $params = session_get_cookie_params();
+    setcookie(
+        session_name(),
+        '',
+        [
+            'expires'  => time() - 42000,
+            'path'     => $params['path'] ?: '/',
+            'domain'   => $params['domain'] ?: '',
+            'secure'   => (bool)$params['secure'],
+            'httponly' => true,
+            'samesite' => $params['samesite'] ?: 'Lax'
+        ]
+    );
 }
 
 session_destroy();
 
-// Calcular ruta base correctamente
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
-$host = $_SERVER['HTTP_HOST'];
-$scriptPath = $_SERVER['SCRIPT_NAME'];
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$scriptPath = $_SERVER['SCRIPT_NAME'] ?? '';
 
 $assetsPos = strpos($scriptPath, '/assets/');
-if ($assetsPos !== false) {
-    $projectPath = substr($scriptPath, 0, $assetsPos);
-} else {
-    $projectPath = '';
-}
+$projectPath = ($assetsPos !== false) ? substr($scriptPath, 0, $assetsPos) : '';
 
 $baseUrl = "{$protocol}://{$host}{$projectPath}";
 
+http_response_code(302);
 header("Location: {$baseUrl}/index.html");
 exit();
 ?>

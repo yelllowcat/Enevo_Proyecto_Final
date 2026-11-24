@@ -1,16 +1,8 @@
 <?php
-session_start();
+require_once __DIR__ . '/../assets/app/config/SessionSecurity.php';
 
-// Verificar si el usuario está logueado
-if (!isset($_SESSION['user_id'])) {
-  header('Location: login.html');
-  exit();
-}
-
-if ($_SESSION['user_rol'] === 'admin') {
-  header('Location: admin.php');
-  exit();
-}
+// Validación estricta de sesión activa de cliente en el servidor (ISO 27001 Control 5.15)
+SessionSecurity::requireClient('login.html', 'principalAdmin.php');
 
 $userName = $_SESSION['user_nombre'] ?? 'Usuario';
 ?>
@@ -39,15 +31,15 @@ $userName = $_SESSION['user_nombre'] ?? 'Usuario';
       <a href="NivelesClientes.php">Niveles</a>
       <a href="Carrito.php">Carrito</a>
 
-
       <div class="user-section">
-        <a href="Perfil.php" class="user-link"><?php echo htmlspecialchars($userName); ?></a>
+        <a href="Perfil.php" class="user-link"><?php echo htmlspecialchars($userName, ENT_QUOTES, 'UTF-8'); ?></a>
         <button id="logoutBtn" class="logout-btn">
           <img src="../assets/img/cerrar-sesion.png" alt="Cerrar sesión" />
         </button>
       </div>
     </div>
   </nav>
+
   <main>
     <section class="hero">
       <h1>Dark Souls</h1>
@@ -58,41 +50,9 @@ $userName = $_SESSION['user_nombre'] ?? 'Usuario';
       <div class="novedades-titulo">
         <h2>Novedades Destacadas</h2>
       </div>
-
-      <div class="card">
-        <img
-          src="../assets/img/DarksoulsRemastered.jpg"
-          alt="Dark Souls Remastered" />
-        <div class="info">
-          <h3>Dark Souls: Remastered</h3>
-          <p class="precio"><span>Desde 549 mx</span><br />10 Puntos</p>
-          <button class="btn-mas-detalles" data-juego="darksouls">
-            Más detalles
-          </button>
-        </div>
-      </div>
-
-      <div class="card">
-        <img src="../assets/img/Logo33.png" alt="Clair Obscur: Expedition 33" />
-        <div class="info">
-          <h3>Clair Obscur: Expedition 33</h3>
-          <p class="precio"><span>Desde 710 mx</span><br />10 Puntos</p>
-          <button class="btn-mas-detalles" data-juego="expedition33">
-            Más detalles
-          </button>
-        </div>
-      </div>
-
-      <div class="card">
-        <img src="../assets/img/LogoRisk.png" alt="Risk of Rain 2" />
-        <div class="info">
-          <h3>Risk of Rain 2</h3>
-          <p class="precio"><span>Desde 233 mx</span><br />10 Puntos</p>
-          <button class="btn-mas-detalles" data-juego="risk2">
-            Más detalles
-          </button>
-        </div>
-      </div>
+      <p class="catalogo-loading" style="text-align: center; color: #aaa; padding: 20px;">
+        Cargando catálogo desde base de datos...
+      </p>
     </section>
   </main>
 
@@ -106,8 +66,7 @@ $userName = $_SESSION['user_nombre'] ?? 'Usuario';
   </footer>
 
   <script src="../assets/js/juegos.js"></script>
-   <script src="../assets/js/main.js"></script>
-
+  <script src="../assets/js/main.js"></script>
 </body>
 
 </html>

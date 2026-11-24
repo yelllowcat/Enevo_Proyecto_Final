@@ -15,11 +15,10 @@ window.addEventListener("DOMContentLoaded", function () {
         actualizarContadorCarrito();
     }
 
-    // Interceptar clicks al carrito dentro de la página de detalles cuando NO está logueado
-    // Esto cubre el caso donde el header/carrito está presente en la página de detalles
-    const isLoggedQuick = !!localStorage.getItem('usuarioLogeado') || !!sessionStorage.getItem('Usuario');
+    // Interceptar clicks al carrito dentro de la página pública (NoLogin)
+    const isNoLoginView = window.location.pathname.includes("NoLogin");
     const loginHrefQuick = window.location.pathname.includes('/views/') ? 'login.html' : 'views/login.html';
-    if (!isLoggedQuick) {
+    if (isNoLoginView) {
         document.body.addEventListener('click', function(e){
             const clicked = e.target.closest('.btn-carrito, a[href*="carrito"], a[href*="Carrito"], .add-to-cart');
             if (!clicked) return;
@@ -38,11 +37,23 @@ async function cargarDetalleJuego() {
     try {
         // Obtener ID de juego desde la URL
         const urlParams = new URLSearchParams(window.location.search);
-        const juegoId = urlParams.get("id");
+        let juegoId = urlParams.get("id");
 
         if (!juegoId) {
             mostrarError("No se especificó un juego");
             return;
+        }
+
+        const slugMap = {
+            darksouls: 1,
+            darksouls_p: 1,
+            expedition33: 2,
+            expedition33_p: 2,
+            risk2: 3,
+            risk2_p: 3
+        };
+        if (slugMap[juegoId]) {
+            juegoId = slugMap[juegoId];
         }
 
         console.log("🎮 Cargando detalles del juego ID:", juegoId);
@@ -122,8 +133,9 @@ function activarCarrito(juego) {
     const isNoLogin = window.location.pathname.includes("NoLogin");
     const isAdmin = window.location.pathname.includes("Admin");
 
-    // Mejor esfuerzo: comprobar si el usuario está logueado
-    const isLogged = !!localStorage.getItem('usuarioLogeado') || !!sessionStorage.getItem('Usuario');
+    // En MasDetalles.php la sesión ya fue validada por SessionSecurity en el servidor;
+    // en MasDetallesNoLogin.html el usuario no tiene sesión activa.
+    const isLogged = !isNoLogin;
 
     if (!isLogged) {
         // Si no está logueado, interceptar el botón de 'añadir al carrito' y los enlaces al carrito
