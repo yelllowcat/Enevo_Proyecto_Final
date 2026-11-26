@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const alertDiv = document.createElement("div");
     alertDiv.className = type === "success" ? "alert-success" : "alert-error";
+    alertDiv.setAttribute("role", "alert");
 
     const span = document.createElement("span");
     span.textContent = message;
@@ -30,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const closeBtn = document.createElement("button");
     closeBtn.className = "alert-close";
     closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", "Cerrar mensaje");
     closeBtn.innerHTML = "&times;";
 
     alertDiv.appendChild(span);
@@ -178,8 +180,30 @@ document.addEventListener("DOMContentLoaded", function () {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
+    const hintMinLen = document.getElementById("hintMinLen");
+    const hintMatch = document.getElementById("hintMatch");
+
+    function updatePasswordHints() {
+      if (hintMinLen && passInput) {
+        const lenOk = passInput.value.length >= 6;
+        hintMinLen.classList.toggle("hint-valid", lenOk);
+        hintMinLen.classList.toggle("hint-invalid", passInput.value.length > 0 && !lenOk);
+      }
+      if (hintMatch && passInput && confirmInput) {
+        const hasBoth = passInput.value.length > 0 && confirmInput.value.length > 0;
+        const matchOk = hasBoth && passInput.value === confirmInput.value;
+        hintMatch.classList.toggle("hint-valid", matchOk);
+        hintMatch.classList.toggle("hint-invalid", hasBoth && !matchOk);
+      }
+    }
+
     [nameInput, emailInput, passInput, confirmInput].forEach((input) => {
-      if (input) input.addEventListener("input", () => removeError(input));
+      if (input) {
+        input.addEventListener("input", () => {
+          removeError(input);
+          updatePasswordHints();
+        });
+      }
     });
 
     registerForm.addEventListener("submit", function (e) {
@@ -240,13 +264,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const modal = document.createElement("div");
     modal.id = "globalNotification";
     modal.className = "modal oculto";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "globalNotificationMessage");
     modal.innerHTML = `
       <div class="modal-content notification-content">
         <p id="globalNotificationMessage">Mensaje de notificación</p>
         <div class="notification-actions">
           <a id="globalPrimaryBtn" class="btn-comprar btn-aceptar" href="#">Aceptar</a>
           <a id="globalSecondaryBtn" class="btn-vaciar" href="#" style="display:none;">Registrar</a>
-          <button id="globalCloseBtn" class="btn-vaciar">Cerrar</button>
+          <button id="globalCloseBtn" type="button" class="btn-vaciar" aria-label="Cerrar diálogo">Cerrar</button>
         </div>
       </div>
     `;
@@ -255,6 +282,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("globalCloseBtn").addEventListener("click", function () {
       document.getElementById("globalNotification").classList.add("oculto");
+    });
+
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) {
+        modal.classList.add("oculto");
+      }
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !modal.classList.contains("oculto")) {
+        modal.classList.add("oculto");
+      }
     });
   })();
 

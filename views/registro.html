@@ -25,26 +25,39 @@
         <form
           action="../assets/app/controllers/AuthController.php"
           method="POST"
+          novalidate
         >
           <input type="hidden" name="action" value="register" />
 
+          <label for="registerNombre" class="form-field-label">Nombre completo</label>
           <input
+            id="registerNombre"
             type="text"
             name="nombre"
-            placeholder="Nombre completo"
+            placeholder="Tu nombre"
+            autocomplete="name"
+            maxlength="100"
             required
           />
+          <label for="registerEmail" class="form-field-label">Correo electrónico</label>
           <input
+            id="registerEmail"
             type="email"
             name="email"
-            placeholder="Correo electrónico"
+            placeholder="tu@correo.com"
+            autocomplete="email"
             required
           />
+          <label for="registerPassword" class="form-field-label">Contraseña</label>
           <div class="password-field">
             <input
+              id="registerPassword"
               type="password"
               name="password"
-              placeholder="Contraseña"
+              placeholder="Mínimo 6 caracteres"
+              autocomplete="new-password"
+              minlength="6"
+              aria-describedby="passwordHints"
               required
             />
             <button
@@ -65,11 +78,16 @@
               </svg>
             </button>
           </div>
+          <label for="registerConfirmPassword" class="form-field-label">Confirmar contraseña</label>
           <div class="password-field">
             <input
+              id="registerConfirmPassword"
               type="password"
               name="confirm_password"
-              placeholder="Confirmar contraseña"
+              placeholder="Repite tu contraseña"
+              autocomplete="new-password"
+              minlength="6"
+              aria-describedby="passwordHints"
               required
             />
             <button
@@ -90,6 +108,10 @@
               </svg>
             </button>
           </div>
+          <ul id="passwordHints" class="password-hints" aria-live="polite">
+            <li id="hintMinLen">Mínimo 6 caracteres</li>
+            <li id="hintMatch">Las contraseñas coinciden</li>
+          </ul>
 
           <button type="submit" class="btn-register-main">Registrarse</button>
         </form>

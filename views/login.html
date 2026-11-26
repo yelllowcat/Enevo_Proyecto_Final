@@ -25,19 +25,26 @@
         <form
           action="../assets/app/controllers/AuthController.php"
           method="POST"
+          novalidate
         >
           <input type="hidden" name="action" value="login" />
+          <label for="loginEmail" class="form-field-label">Correo electrónico</label>
           <input
+            id="loginEmail"
             type="email"
             name="email"
-            placeholder="Correo Electrónico"
+            placeholder="tu@correo.com"
+            autocomplete="email"
             required
           />
+          <label for="loginPassword" class="form-field-label">Contraseña</label>
           <div class="password-field">
             <input
+              id="loginPassword"
               type="password"
               name="password"
-              placeholder="Contraseña"
+              placeholder="Ingresa tu contraseña"
+              autocomplete="current-password"
               required
             />
             <button

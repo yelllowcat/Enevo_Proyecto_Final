@@ -2796,3 +2796,65 @@ tbody tr td {
   color: #ffd700;
   text-decoration: underline;
 }
+
+/* ====== PUNTO 9: ETIQUETAS, REQUISITOS DE CONTRASEÑA Y ACCESIBILIDAD DE TECLADO ====== */
+.form-field-label {
+  display: block;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #d4dbe2;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.password-hints {
+  list-style: none;
+  text-align: left;
+  margin: 6px 0 12px;
+  padding: 8px 10px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid #6c7a96;
+  font-size: 0.8rem;
+  color: #c5c6c7;
+}
+
+.password-hints li {
+  margin: 3px 0;
+  padding-left: 18px;
+  position: relative;
+}
+
+.password-hints li::before {
+  content: "•";
+  position: absolute;
+  left: 4px;
+  color: #a9b2c3;
+}
+
+.password-hints li.hint-valid {
+  color: #66bb6a;
+}
+
+.password-hints li.hint-valid::before {
+  content: "✓";
+  color: #66bb6a;
+}
+
+.password-hints li.hint-invalid {
+  color: #ef5350;
+}
+
+.password-hints li.hint-invalid::before {
+  content: "✕";
+  color: #ef5350;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #ffd700 !important;
+  outline-offset: 2px;
+}
