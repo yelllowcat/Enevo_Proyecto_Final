@@ -19,7 +19,7 @@ $userName = $_SESSION['user_nombre'] ?? 'Usuario';
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Detalles del Juego</title>
+    <title>Detalles del Juego — Enevo</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style/main.css">

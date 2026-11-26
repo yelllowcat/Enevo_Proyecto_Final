@@ -16,7 +16,7 @@ $userName = $_SESSION['user_nombre'] ?? 'Admin';
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ClientesAdmin</title>
+    <title>Gestión de Clientes — Enevo</title>
 
     <!-- Fuentes -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -59,6 +59,20 @@ $userName = $_SESSION['user_nombre'] ?? 'Admin';
             <button class="btn-agregar-cliente" onclick="irAgregarCliente()">Agregar</button>
         </div>
 
+        <div class="admin-filtros" role="search" aria-label="Filtrar clientes">
+            <input
+                type="search"
+                id="buscarCliente"
+                class="filtro-control"
+                placeholder="Buscar por nombre, correo o ID..."
+                aria-label="Buscar cliente"
+            />
+            <select id="filtroNivelCliente" class="filtro-control" aria-label="Filtrar por nivel">
+                <option value="">Todos los niveles</option>
+            </select>
+            <button type="button" id="btnLimpiarClientes" class="btn-limpiar-filtros">Limpiar</button>
+            <span id="clientesCount" class="admin-resultados-count" aria-live="polite"></span>
+        </div>
 
         <!-- TABLA -->
         <div class="clientes-tabla-contenedor">

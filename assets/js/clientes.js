@@ -1,14 +1,23 @@
 const CLIENTES_API = "../assets/app/controllers/ClientesController.php";
+let clientesCache = [];
+
+function escapeHtmlCliente(text) {
+  const div = document.createElement("div");
+  div.textContent = text ?? "";
+  return div.innerHTML;
+}
 
 // ============================================================================
-// LISTAR CLIENTES
+// LISTAR Y FILTRAR CLIENTES
 // ============================================================================
 function cargarClientes() {
   fetch(`${CLIENTES_API}?accion=listar`)
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        mostrarClientes(data.clientes);
+        clientesCache = Array.isArray(data.clientes) ? data.clientes : [];
+        poblarFiltroNivelesClientes(clientesCache);
+        aplicarFiltroClientes();
       } else {
         console.error("Error al cargar clientes:", data.message);
       }
@@ -16,6 +25,61 @@ function cargarClientes() {
     .catch((error) => {
       console.error("Error en la petición:", error);
     });
+}
+
+function poblarFiltroNivelesClientes(clientes) {
+  const select = document.getElementById("filtroNivelCliente");
+  if (!select) return;
+
+  const valorActual = select.value;
+  const niveles = [...new Set(clientes.map((c) => (c.nivel_nombre || "").trim()).filter(Boolean))].sort();
+  select.innerHTML =
+    '<option value="">Todos los niveles</option>' +
+    niveles.map((n) => `<option value="${escapeHtmlCliente(n)}">${escapeHtmlCliente(n)}</option>`).join("");
+
+  if (niveles.includes(valorActual)) {
+    select.value = valorActual;
+  }
+}
+
+function aplicarFiltroClientes() {
+  const queryEl = document.getElementById("buscarCliente");
+  const nivelEl = document.getElementById("filtroNivelCliente");
+  const query = queryEl ? queryEl.value.trim().toLowerCase() : "";
+  const nivel = nivelEl ? nivelEl.value : "";
+
+  const filtrados = clientesCache.filter((c) => {
+    const idStr = String(c.id ?? "");
+    const nombre = (c.nombre || "").toLowerCase();
+    const email = (c.email || "").toLowerCase();
+    const matchQuery = !query || idStr.includes(query) || nombre.includes(query) || email.includes(query);
+    const matchNivel = !nivel || (c.nivel_nombre || "") === nivel;
+    return matchQuery && matchNivel;
+  });
+
+  const countEl = document.getElementById("clientesCount");
+  if (countEl) {
+    countEl.textContent = `Mostrando ${filtrados.length} de ${clientesCache.length} clientes`;
+  }
+
+  mostrarClientes(filtrados);
+}
+
+function inicializarFiltrosClientes() {
+  const queryEl = document.getElementById("buscarCliente");
+  const nivelEl = document.getElementById("filtroNivelCliente");
+  const limpiarBtn = document.getElementById("btnLimpiarClientes");
+
+  if (queryEl) queryEl.addEventListener("input", aplicarFiltroClientes);
+  if (nivelEl) nivelEl.addEventListener("change", aplicarFiltroClientes);
+  if (limpiarBtn) {
+    limpiarBtn.addEventListener("click", () => {
+      if (queryEl) queryEl.value = "";
+      if (nivelEl) nivelEl.value = "";
+      aplicarFiltroClientes();
+      if (queryEl) queryEl.focus();
+    });
+  }
 }
 
 function mostrarClientes(clientes) {
@@ -26,25 +90,34 @@ function mostrarClientes(clientes) {
   tbody.innerHTML = "";
 
   if (clientes.length === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="6" style="text-align:center;">No hay clientes registrados</td></tr>';
+    const msg = clientesCache.length === 0
+      ? "No hay clientes registrados"
+      : "No se encontraron clientes que coincidan con la búsqueda";
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">${msg}</td></tr>`;
     return;
   }
 
   clientes.forEach((cliente) => {
     const tr = document.createElement("tr");
+    const safeNombre = escapeHtmlCliente(cliente.nombre);
+    const safeNivel = escapeHtmlCliente(cliente.nivel_nombre);
+    const safeEmail = escapeHtmlCliente(cliente.email);
     tr.innerHTML = `
-            <td>${cliente.id}</td>
-            <td>${cliente.nombre}</td>
-            <td>${cliente.nivel_nombre}</td>
-            <td>${cliente.email}</td>
+            <td>${escapeHtmlCliente(String(cliente.id))}</td>
+            <td>${safeNombre}</td>
+            <td>${safeNivel}</td>
+            <td>${safeEmail}</td>
             <td>
-                <button class="btn-cliente-editar" onclick="irEditarCliente(${cliente.id})">Editar</button>
+                <button type="button" class="btn-cliente-editar" onclick="irEditarCliente(${Number(cliente.id)})">Editar</button>
             </td>
             <td>
-                <button class="btn-eliminar-cliente" onclick="confirmarEliminar(${cliente.id}, '${cliente.nombre}')">Eliminar</button>
+                <button type="button" class="btn-eliminar-cliente" data-id="${Number(cliente.id)}" data-nombre="${safeNombre}">Eliminar</button>
             </td>
         `;
+    const delBtn = tr.querySelector(".btn-eliminar-cliente");
+    if (delBtn) {
+      delBtn.addEventListener("click", () => confirmarEliminar(Number(cliente.id), cliente.nombre || ""));
+    }
     tbody.appendChild(tr);
   });
 }
@@ -325,6 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const path = window.location.pathname;
 
   if (path.includes("ClientesAdmin.php")) {
+    inicializarFiltrosClientes();
     cargarClientes();
   } else if (path.includes("EditarCliente.php")) {
     cargarDatosCliente();
