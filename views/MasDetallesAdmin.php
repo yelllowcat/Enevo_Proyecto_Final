@@ -54,7 +54,7 @@ $userName = $_SESSION['user_nombre'] ?? 'Admin';
             <div class="buy-row">
                 <div class="buy-text">
                     <strong id="buy-title">Cargando...</strong><br>
-                    <small>Versión digital · Plataforma: PC</small>
+                    <small>Versión digital · Plataforma: <span id="game-platform">Cargando...</span></small>
                 </div>
 
                 <div class="buy-actions">

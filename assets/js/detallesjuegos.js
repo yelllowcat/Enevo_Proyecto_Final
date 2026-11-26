@@ -80,15 +80,17 @@ async function cargarDetalleJuego() {
 }
 
 function mostrarDetalles(juego) {
-    const puntos = Math.floor(juego.precio / 50);
+    const precioNum = parseFloat(juego.precio) || 0;
+    const puntosGanados = Math.floor(precioNum / 10);
+    const puntosCanje = Math.floor(precioNum / 50);
     const isNoLogin = window.location.pathname.includes("NoLogin");
-    const isAdmin = window.location.pathname.includes("Admin.php");
     const prefix = isNoLogin ? "nl-" : "";
 
     const titulo = document.getElementById(`game-${prefix}title`);
     const img = document.getElementById(`game-${prefix}img`);
     const precio = document.getElementById(`game-${prefix}price`);
     const buyTitle = document.getElementById(`buy-${prefix}title`);
+    const platformEl = document.getElementById(`game-${prefix}platform`);
     const descripcion = document.getElementById(`game-${prefix}desc`);
     const requisitos = document.getElementById(`req-${prefix}list`);
 
@@ -96,12 +98,22 @@ function mostrarDetalles(juego) {
 
     if (img) {
         img.src = `../assets/img/juego_${juego.id}.jpg`;
-        img.onerror = () => img.src = "../assets/img/default_game.jpg";
+        img.alt = juego.nombre || "Juego";
+        img.onerror = () => {
+            img.onerror = null;
+            img.src = "../assets/img/LogoEnevo.png";
+        };
     }
 
-    if (precio) precio.textContent = `Mex$ ${parseFloat(juego.precio).toFixed(2)} · ${puntos} pts`;
+    if (precio) {
+        precio.textContent = `Mex$ ${precioNum.toFixed(2)} · Ganas ${puntosGanados} pts (Canje: ${puntosCanje} pts)`;
+    }
 
     if (buyTitle) buyTitle.textContent = `Comprar ${juego.nombre}`;
+
+    if (platformEl) {
+        platformEl.textContent = juego.plataforma || "Multi-plataforma";
+    }
 
     if (descripcion)
         descripcion.textContent = juego.descripcion || "Sin descripción disponible";
