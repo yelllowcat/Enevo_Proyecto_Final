@@ -2667,3 +2667,39 @@ tbody tr td {
   border-radius: 999px !important;
   vertical-align: middle;
 }
+
+/* ====== PUNTO 5: CONTROLES DE CANTIDAD EN CARRITO ====== */
+.qty-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.qty-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2b3347;
+  color: #fff;
+  border: 1px solid #495470;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.qty-btn:hover:not(:disabled) {
+  background-color: #ffd700;
+  color: #000;
+  border-color: #ffd700;
+}
+
+.qty-value {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  color: #fff;
+}

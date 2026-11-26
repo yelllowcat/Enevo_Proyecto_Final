@@ -52,7 +52,67 @@ if (isset($_GET['action'])) {
                 $response = [
                     'success' => true,
                     'carrito' => $_SESSION['carrito'],
+                    'total' => CarritoController::total(),
                     'total_items' => array_sum(array_column($_SESSION['carrito'], 'cantidad'))
+                ];
+                break;
+
+            case 'increment':
+                $id = $_POST['id_juego'] ?? null;
+                if (!$id || !isset($_SESSION['carrito'][$id])) {
+                    $response = ['success' => false, 'message' => 'Producto no encontrado en el carrito'];
+                    break;
+                }
+                $_SESSION['carrito'][$id]['cantidad'] += 1;
+                $response = [
+                    'success' => true,
+                    'message' => 'Cantidad aumentada',
+                    'carrito' => $_SESSION['carrito'],
+                    'total' => CarritoController::total(),
+                    'total_items' => array_sum(array_column($_SESSION['carrito'], 'cantidad'))
+                ];
+                break;
+
+            case 'decrement':
+                $id = $_POST['id_juego'] ?? null;
+                if (!$id || !isset($_SESSION['carrito'][$id])) {
+                    $response = ['success' => false, 'message' => 'Producto no encontrado en el carrito'];
+                    break;
+                }
+                CarritoController::eliminar($id);
+                $response = [
+                    'success' => true,
+                    'message' => 'Cantidad actualizada',
+                    'carrito' => $_SESSION['carrito'],
+                    'total' => CarritoController::total(),
+                    'total_items' => array_sum(array_column($_SESSION['carrito'], 'cantidad'))
+                ];
+                break;
+
+            case 'remove':
+                $id = $_POST['id_juego'] ?? null;
+                if (!$id || !isset($_SESSION['carrito'][$id])) {
+                    $response = ['success' => false, 'message' => 'Producto no encontrado en el carrito'];
+                    break;
+                }
+                CarritoController::eliminarTodo($id);
+                $response = [
+                    'success' => true,
+                    'message' => 'Producto eliminado del carrito',
+                    'carrito' => $_SESSION['carrito'],
+                    'total' => CarritoController::total(),
+                    'total_items' => array_sum(array_column($_SESSION['carrito'], 'cantidad'))
+                ];
+                break;
+
+            case 'clear':
+                CarritoController::vaciar();
+                $response = [
+                    'success' => true,
+                    'message' => 'Carrito vaciado correctamente',
+                    'carrito' => [],
+                    'total' => '0.00',
+                    'total_items' => 0
                 ];
                 break;
                 

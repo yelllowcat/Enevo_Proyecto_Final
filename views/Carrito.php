@@ -96,10 +96,26 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                 <?php } else { ?>
 
                     <?php foreach ($carrito as $id => $item) { ?>
-                        <div class="carrito-item">
+                        <div class="carrito-item" data-item-id="<?php echo htmlspecialchars((string)$id); ?>">
                             <div class="item-info">
                                 <span class="item-nombre"><?php echo htmlspecialchars($item['nombre']); ?></span>
-                                <span class="item-cantidad">Cantidad: <?php echo $item['cantidad']; ?></span>
+                                <div class="qty-controls" role="group" aria-label="Cantidad de <?php echo htmlspecialchars($item['nombre']); ?>">
+                                    <button
+                                        type="button"
+                                        class="qty-btn btn-qty-dec"
+                                        data-id="<?php echo htmlspecialchars((string)$id); ?>"
+                                        aria-label="Disminuir cantidad de <?php echo htmlspecialchars($item['nombre']); ?>"
+                                        title="Quitar 1"
+                                    >−</button>
+                                    <span class="qty-value" aria-live="polite"><?php echo (int)$item['cantidad']; ?></span>
+                                    <button
+                                        type="button"
+                                        class="qty-btn btn-qty-inc"
+                                        data-id="<?php echo htmlspecialchars((string)$id); ?>"
+                                        aria-label="Aumentar cantidad de <?php echo htmlspecialchars($item['nombre']); ?>"
+                                        title="Agregar 1"
+                                    >+</button>
+                                </div>
                             </div>
                             <div class="item-precio">
                                 <span>Mex$ <?php echo number_format($item['precio'], 2); ?> c/u</span>
@@ -108,9 +124,15 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                                 </span>
                             </div>
                             <div class="item-acciones">
-                                <a class="btn-eliminar" href="Carrito.php?eliminar=<?php echo $id; ?>" title="Quitar un item">
+                                <button
+                                    type="button"
+                                    class="btn-eliminar btn-remove-item"
+                                    data-id="<?php echo htmlspecialchars((string)$id); ?>"
+                                    data-nombre="<?php echo htmlspecialchars($item['nombre']); ?>"
+                                    title="Eliminar todas las unidades de este juego"
+                                >
                                     Eliminar
-                                </a>
+                                </button>
                             </div>
                         </div>
                     <?php } ?>
@@ -121,9 +143,9 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                     </div>
 
                     <div class="carrito-acciones">
-                        <a class="btn-vaciar" href="Carrito.php?vaciar=1">
+                        <button type="button" id="btn-vaciar-carrito" class="btn-vaciar">
                             Vaciar carrito
-                        </a>
+                        </button>
                         <a class="btn-comprar" href="Checkout.php">
                             Proceder al pago
                         </a>
@@ -153,6 +175,70 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
         document.getElementById('logoutBtn').addEventListener('click', function() {
             window.location.href = '../assets/app/controllers/LogoutController.php';
         });
+
+        // Controles de cantidad (+ / -), eliminar ítem y vaciar carrito con confirmación
+        async function actualizarCarritoAccion(action, idJuego = null) {
+            const body = new URLSearchParams();
+            if (idJuego !== null) body.append('id_juego', idJuego);
+
+            const res = await fetch(`../assets/app/controllers/CarritoController.php?action=${encodeURIComponent(action)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString(),
+                credentials: 'same-origin'
+            });
+            const data = await res.json();
+            if (data && data.success) {
+                window.location.reload();
+            } else {
+                showNotification({ message: (data && data.message) || 'No se pudo actualizar el carrito.', type: 'error' });
+            }
+        }
+
+        document.querySelectorAll('.btn-qty-inc').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.disabled = true;
+                actualizarCarritoAccion('increment', this.dataset.id).catch(() => { this.disabled = false; });
+            });
+        });
+
+        document.querySelectorAll('.btn-qty-dec').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.disabled = true;
+                actualizarCarritoAccion('decrement', this.dataset.id).catch(() => { this.disabled = false; });
+            });
+        });
+
+        document.querySelectorAll('.btn-remove-item').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const nombre = this.dataset.nombre || 'este juego';
+                showNotification({
+                    message: `¿Quitar "${nombre}" del carrito?`,
+                    type: 'info',
+                    primaryText: 'Quitar',
+                    onPrimary: function() {
+                        actualizarCarritoAccion('remove', id);
+                    },
+                    secondaryText: 'Cancelar'
+                });
+            });
+        });
+
+        const btnVaciarCarrito = document.getElementById('btn-vaciar-carrito');
+        if (btnVaciarCarrito) {
+            btnVaciarCarrito.addEventListener('click', function() {
+                showNotification({
+                    message: '¿Estás seguro de que deseas vaciar todo tu carrito?',
+                    type: 'info',
+                    primaryText: 'Sí, vaciar',
+                    onPrimary: function() {
+                        actualizarCarritoAccion('clear');
+                    },
+                    secondaryText: 'Cancelar'
+                });
+            });
+        }
 
         // Manejar pago con puntos
         const btnPagarPuntos = document.getElementById('btn-pagar-puntos');
