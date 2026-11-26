@@ -2535,3 +2535,36 @@ tbody tr td {
   opacity: 0.75;
   cursor: wait;
 }
+
+/* ====== PUNTO 2: MOSTRAR / OCULTAR CONTRASEÑA ====== */
+.password-field {
+  position: relative;
+  width: 100%;
+  margin: 8px 0;
+}
+
+.password-field input {
+  width: 100%;
+  margin: 0 !important;
+  padding-right: 42px !important;
+}
+
+.toggle-password-btn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #c5c6c7;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.toggle-password-btn:hover {
+  background: transparent;
+  color: #ffd700;
+}

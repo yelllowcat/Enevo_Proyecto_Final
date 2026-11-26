@@ -54,6 +54,31 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ===========================================================
+  //         MOSTRAR / OCULTAR CONTRASEÑA (LOGIN Y REGISTRO)
+  // ===========================================================
+  document.querySelectorAll(".toggle-password-btn").forEach((toggleBtn) => {
+    toggleBtn.addEventListener("click", function () {
+      const wrapper = this.closest(".password-field");
+      const input = wrapper ? wrapper.querySelector("input") : null;
+      if (!input) return;
+
+      const showing = input.type === "text";
+      input.type = showing ? "password" : "text";
+      this.setAttribute("aria-pressed", String(!showing));
+      this.setAttribute("aria-label", showing ? "Mostrar contraseña" : "Ocultar contraseña");
+      this.setAttribute("title", showing ? "Mostrar contraseña" : "Ocultar contraseña");
+
+      const eye = this.querySelector(".icon-eye");
+      const eyeOff = this.querySelector(".icon-eye-off");
+      if (eye && eyeOff) {
+        eye.style.display = showing ? "" : "none";
+        eyeOff.style.display = showing ? "none" : "";
+      }
+      input.focus();
+    });
+  });
+
+  // ===========================================================
   //                     VALIDACIÓN LOGIN
   // ===========================================================
   const loginForm = document.querySelector(
@@ -61,8 +86,8 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   if (loginForm && loginForm.querySelector('input[name="action"][value="login"]')) {
-    const emailInput = loginForm.querySelector('input[type="email"]');
-    const passInput = loginForm.querySelector('input[type="password"]');
+    const emailInput = loginForm.querySelector('input[name="email"]');
+    const passInput = loginForm.querySelector('input[name="password"]');
 
     function createErrorEl(text) {
       const el = document.createElement("div");
@@ -72,15 +97,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function removeError(input) {
-      const next = input.nextElementSibling;
+      const anchor = input.closest(".password-field") || input;
+      const next = anchor.nextElementSibling;
       if (next && next.classList.contains("input-error")) next.remove();
       input.classList.remove("has-error");
     }
 
     function showError(input, text) {
       removeError(input);
+      const anchor = input.closest(".password-field") || input;
       input.classList.add("has-error");
-      input.insertAdjacentElement("afterend", createErrorEl(text));
+      anchor.insertAdjacentElement("afterend", createErrorEl(text));
     }
 
     function isValidEmail(email) {
@@ -134,15 +161,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function removeError(input) {
-      const next = input.nextElementSibling;
+      const anchor = input.closest(".password-field") || input;
+      const next = anchor.nextElementSibling;
       if (next && next.classList.contains("input-error")) next.remove();
       input.classList.remove("has-error");
     }
 
     function showError(input, text) {
       removeError(input);
+      const anchor = input.closest(".password-field") || input;
       input.classList.add("has-error");
-      input.insertAdjacentElement("afterend", createErrorEl(text));
+      anchor.insertAdjacentElement("afterend", createErrorEl(text));
     }
 
     function isValidEmail(email) {
