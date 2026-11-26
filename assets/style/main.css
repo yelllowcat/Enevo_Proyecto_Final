@@ -2703,3 +2703,46 @@ tbody tr td {
   font-weight: 600;
   color: #fff;
 }
+
+/* ====== PUNTO 6: RESUMEN DE PUNTOS EN CARRITO ====== */
+.puntos-resumen {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border-left: 4px solid #ffd700;
+  font-size: 0.9rem;
+}
+
+.puntos-resumen.puntos-ok {
+  border-left-color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.12);
+}
+
+.puntos-resumen.puntos-insuficientes {
+  border-left-color: #ffb300;
+  background-color: rgba(255, 179, 0, 0.1);
+}
+
+.puntos-resumen-fila {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: #d4dbe2;
+}
+
+.puntos-resumen-fila strong {
+  color: #ffd700;
+}
+
+.puntos-resumen-estado {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.btn-pagar-puntos:disabled {
+  background-color: #555 !important;
+  color: #bbb !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}

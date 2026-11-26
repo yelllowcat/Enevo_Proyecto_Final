@@ -46,6 +46,13 @@ if (isset($_GET['eliminar_todo'])) {
 $carrito = CarritoController::obtenerCarrito();
 $total = CarritoController::total();
 
+$puntosRequeridos = 0;
+foreach ($carrito as $item) {
+    $puntosRequeridos += (int)floor($item['precio'] / 50) * (int)$item['cantidad'];
+}
+$tienePuntosSuficientes = intval($puntosUsuario) >= $puntosRequeridos;
+$puntosFaltantes = max(0, $puntosRequeridos - intval($puntosUsuario));
+
 $userName = $_SESSION['user_nombre'] ?? "Usuario";
 ?>
 
@@ -142,6 +149,24 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                         <strong>Mex$ <?php echo number_format($total, 2); ?></strong>
                     </div>
 
+                    <div class="puntos-resumen <?php echo $tienePuntosSuficientes ? 'puntos-ok' : 'puntos-insuficientes'; ?>">
+                        <div class="puntos-resumen-fila">
+                            <span>Costo pagando con puntos:</span>
+                            <strong><?php echo $puntosRequeridos; ?> pts</strong>
+                        </div>
+                        <div class="puntos-resumen-fila">
+                            <span>Tus puntos disponibles:</span>
+                            <strong><?php echo intval($puntosUsuario); ?> pts</strong>
+                        </div>
+                        <p class="puntos-resumen-estado">
+                            <?php if ($tienePuntosSuficientes): ?>
+                                ¡Tienes puntos suficientes para canjear este pedido!
+                            <?php else: ?>
+                                Te faltan <strong><?php echo $puntosFaltantes; ?> pts</strong> para pagar este pedido con puntos.
+                            <?php endif; ?>
+                        </p>
+                    </div>
+
                     <div class="carrito-acciones">
                         <button type="button" id="btn-vaciar-carrito" class="btn-vaciar">
                             Vaciar carrito
@@ -149,8 +174,14 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                         <a class="btn-comprar" href="Checkout.php">
                             Proceder al pago
                         </a>
-                        <button id="btn-pagar-puntos" class="btn-pagar-puntos">
-                            Pagar con puntos
+                        <button
+                            type="button"
+                            id="btn-pagar-puntos"
+                            class="btn-pagar-puntos"
+                            data-puntos-requeridos="<?php echo $puntosRequeridos; ?>"
+                            <?php echo !$tienePuntosSuficientes ? 'disabled aria-disabled="true" title="Te faltan ' . $puntosFaltantes . ' puntos para pagar con puntos"' : ''; ?>
+                        >
+                            Pagar con puntos (<?php echo $puntosRequeridos; ?> pts)
                         </button>
                     </div>
 
@@ -240,47 +271,58 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
             });
         }
 
-        // Manejar pago con puntos
+        // Manejar pago con puntos (con modal unificado)
         const btnPagarPuntos = document.getElementById('btn-pagar-puntos');
         if (btnPagarPuntos) {
             btnPagarPuntos.addEventListener('click', function(e) {
                 e.preventDefault();
+                if (this.disabled) return;
 
-                if (!confirm('¿Deseas pagar esta compra usando tus puntos acumulados?')) return;
+                const puntosReq = this.dataset.puntosRequeridos || '0';
+                showNotification({
+                    message: `¿Confirmas pagar este pedido usando ${puntosReq} puntos acumulados?`,
+                    type: 'info',
+                    primaryText: 'Confirmar pago',
+                    onPrimary: function() {
+                        const modal = document.getElementById('globalNotification');
+                        if (modal) modal.classList.add('oculto');
 
-                fetch('../assets/app/controllers/CompraController.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'action=procesar_compra_puntos'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification({
-                            message: data.message || 'Compra con puntos realizada',
-                            type: 'success',
-                            autoHide: 2500,
-                            primaryText: 'Ver historial',
-                            primaryHref: 'HistorialCompras.php'
+                        fetch('../assets/app/controllers/CompraController.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'action=procesar_compra_puntos'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showNotification({
+                                    message: data.message || 'Compra con puntos realizada',
+                                    type: 'success',
+                                    autoHide: 2500,
+                                    primaryText: 'Ver historial',
+                                    primaryHref: 'HistorialCompras.php'
+                                });
+                            } else {
+                                if (data.message === 'Puntos insuficientes') {
+                                    showNotification({
+                                        message: 'Puntos insuficientes. Necesitas ' + (data.puntos_requeridos || 'N/A') + ' puntos. Tienes: ' + (data.puntos_actuales || 0),
+                                        type: 'error',
+                                        primaryText: 'Ver perfil',
+                                        primaryHref: 'Perfil.php'
+                                    });
+                                } else {
+                                    showNotification({ message: data.message || 'Error al procesar la compra', type: 'error' });
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            showNotification({ message: 'Error en la petición. Intenta nuevamente.', type: 'error' });
                         });
-                    } else {
-                        if (data.message === 'Puntos insuficientes') {
-                            showNotification({
-                                message: 'Puntos insuficientes. Necesitas ' + (data.puntos_requeridos || 'N/A') + ' puntos. Tienes: ' + (data.puntos_actuales || 0),
-                                type: 'error',
-                                primaryText: 'Ver perfil',
-                                primaryHref: 'Perfil.php'
-                            });
-                        } else {
-                            showNotification({ message: data.message || 'Error al procesar la compra', type: 'error' });
-                        }
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    showNotification({ message: 'Error en la petición. Intenta nuevamente.', type: 'error' });
+                    },
+                    secondaryText: 'Cancelar'
                 });
             });
         }
