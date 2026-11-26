@@ -52,7 +52,11 @@ class ExportarController {
     }
 
     public function exportarHistorialCompras($usuario_id) {
-        $sqlUsuario = "SELECT nombre, email FROM usuarios WHERE id = ?";
+        $sqlUsuario = "SELECT COALESCE(c.nombre, u.username) AS nombre, u.email, c.id AS cliente_id
+                       FROM usuarios u
+                       LEFT JOIN clientes c ON c.usuario_id = u.id
+                       WHERE u.id = ?
+                       LIMIT 1";
         $stmtUsuario = $this->db->prepare($sqlUsuario);
         $stmtUsuario->bind_param("i", $usuario_id);
         $stmtUsuario->execute();
@@ -64,22 +68,25 @@ class ExportarController {
             exit();
         }
 
-        $sqlCompras = "SELECT 
-                c.id as compra_id,
-                c.fecha_compra,
-                c.monto_pagado,
-                c.puntos_ganados,
-                j.nombre as juego_nombre,
-                j.precio as juego_precio
-            FROM compras c
-            LEFT JOIN juegos j ON c.juego_id = j.id
-            WHERE c.usuario_id = ?
-            ORDER BY c.fecha_compra DESC";
-        
-        $stmtCompras = $this->db->prepare($sqlCompras);
-        $stmtCompras->bind_param("i", $usuario_id);
-        $stmtCompras->execute();
-        $compras = $stmtCompras->get_result()->fetch_all(MYSQLI_ASSOC);
+        $compras = [];
+        if (!empty($usuario['cliente_id'])) {
+            $sqlCompras = "SELECT 
+                    c.id as compra_id,
+                    c.fecha as fecha_compra,
+                    c.monto as monto_pagado,
+                    c.puntos_generados as puntos_ganados,
+                    j.nombre as juego_nombre,
+                    j.precio as juego_precio
+                FROM compras c
+                LEFT JOIN juegos j ON c.juego_id = j.id
+                WHERE c.cliente_id = ?
+                ORDER BY c.fecha DESC";
+
+            $stmtCompras = $this->db->prepare($sqlCompras);
+            $stmtCompras->bind_param("i", $usuario['cliente_id']);
+            $stmtCompras->execute();
+            $compras = $stmtCompras->get_result()->fetch_all(MYSQLI_ASSOC);
+        }
 
         $totalGastado = 0;
         $totalPuntos = 0;

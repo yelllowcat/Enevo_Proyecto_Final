@@ -100,7 +100,12 @@ $historial = $compraModel->obtenerHistorialCompras($_SESSION['user_id']);
                     </table>
 
                     <div class="historial-btn-box">
-                        <button class="historial-btn" onclick="descargarPDF()">Descargar PDF</button>
+                        <a
+                            href="../ExportarDatos.php?tipo=historial&formato=pdf"
+                            class="historial-btn"
+                            target="_blank"
+                            rel="noopener"
+                        >Descargar PDF</a>
                     </div>
 
                 <?php } ?>
@@ -121,11 +126,6 @@ $historial = $compraModel->obtenerHistorialCompras($_SESSION['user_id']);
 
     <!-- Scripts -->
     <script src="../assets/js/main.js"></script>
-    <script>
-        function descargarPDF() {
-            showNotification({ message: 'Función de descarga de PDF en desarrollo', type: 'info', autoHide: 2500 });
-        }
-    </script>
 </body>
 
 </html>

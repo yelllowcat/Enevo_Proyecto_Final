@@ -85,11 +85,46 @@ $compras_faltantes = $datosPerfil['compras_faltantes'];
                         <p><strong>Nivel Actual:</strong> <?php echo htmlspecialchars($perfil['nivel_nombre'] ?? 'Bronce'); ?></p>
                         
                         <?php if ($proximo_nivel): ?>
+                            <?php
+                                $puntosActuales = (int)($perfil['puntos_acumulados'] ?? 0);
+                                $puntosMeta = max(1, (int)($proximo_nivel['puntos_minimos'] ?? 1));
+                                $porcentajePuntos = min(100, (int)round(($puntosActuales / $puntosMeta) * 100));
+
+                                $comprasActuales = (int)($perfil['total_compras'] ?? 0);
+                                $comprasMeta = max(1, (int)($proximo_nivel['compras_necesarias'] ?? 1));
+                                $porcentajeCompras = min(100, (int)round(($comprasActuales / $comprasMeta) * 100));
+                            ?>
                             <p><strong>Siguiente nivel:</strong> <?php echo htmlspecialchars($proximo_nivel['nombre']); ?></p>
-                            <p><strong>Puntos faltantes:</strong> <?php echo max(0, ($proximo_nivel['puntos_minimos'] - ($perfil['puntos_acumulados'] ?? 0))); ?> puntos</p>
-                            <p><strong>Compras faltantes:</strong> <?php echo $compras_faltantes; ?></p>
+                            <div class="level-progress">
+                                <div class="progress-header">
+                                    <span>Progreso en puntos (<?php echo $puntosActuales; ?> / <?php echo $puntosMeta; ?>)</span>
+                                    <strong><?php echo $porcentajePuntos; ?>%</strong>
+                                </div>
+                                <div class="progress-track" role="progressbar" aria-valuenow="<?php echo $porcentajePuntos; ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso en puntos hacia el siguiente nivel">
+                                    <div class="progress-fill" style="width: <?php echo $porcentajePuntos; ?>%;"></div>
+                                </div>
+                                <small class="progress-caption">Faltan <?php echo max(0, $puntosMeta - $puntosActuales); ?> puntos</small>
+                            </div>
+                            <div class="level-progress">
+                                <div class="progress-header">
+                                    <span>Progreso en compras (<?php echo $comprasActuales; ?> / <?php echo $comprasMeta; ?>)</span>
+                                    <strong><?php echo $porcentajeCompras; ?>%</strong>
+                                </div>
+                                <div class="progress-track" role="progressbar" aria-valuenow="<?php echo $porcentajeCompras; ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso en compras hacia el siguiente nivel">
+                                    <div class="progress-fill progress-fill-secondary" style="width: <?php echo $porcentajeCompras; ?>%;"></div>
+                                </div>
+                                <small class="progress-caption">Faltan <?php echo (int)$compras_faltantes; ?> compras</small>
+                            </div>
                         <?php else: ?>
-                            <p><strong>¡Felicidades! Has alcanzado el nivel máximo.</strong></p>
+                            <div class="level-progress">
+                                <div class="progress-header">
+                                    <span>¡Felicidades! Has alcanzado el nivel máximo.</span>
+                                    <strong>100%</strong>
+                                </div>
+                                <div class="progress-track" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Nivel máximo alcanzado">
+                                    <div class="progress-fill" style="width: 100%;"></div>
+                                </div>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>

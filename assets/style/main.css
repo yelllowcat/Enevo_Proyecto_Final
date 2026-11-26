@@ -2858,3 +2858,52 @@ textarea:focus-visible {
   outline: 2px solid #ffd700 !important;
   outline-offset: 2px;
 }
+
+/* ====== PUNTO 12: BARRA DE PROGRESO EN PERFIL Y BOTÓN PDF HISTORIAL ====== */
+.level-progress {
+  margin-top: 12px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #d4dbe2;
+  margin-bottom: 5px;
+}
+
+.progress-header strong {
+  color: #ffd700;
+}
+
+.progress-track {
+  width: 100%;
+  height: 10px;
+  background-color: #2b3347;
+  border: 1px solid #495470;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffb300, #ffd700);
+  transition: width 0.35s ease;
+}
+
+.progress-fill-secondary {
+  background: linear-gradient(90deg, #2e7d32, #66bb6a);
+}
+
+.progress-caption {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: #a9b2c3;
+}
+
+a.historial-btn {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}
