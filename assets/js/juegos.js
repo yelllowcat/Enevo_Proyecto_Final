@@ -61,7 +61,7 @@ function inicializarFiltrosCatalogo(juegos) {
   filtrosBox.setAttribute("aria-label", "Filtrar catálogo de juegos");
 
   filtrosBox.innerHTML = `
-    <div class="filtros-grid">
+    <div class="filtros-row-top">
       <input
         type="search"
         id="filtroBusqueda"
@@ -69,6 +69,9 @@ function inicializarFiltrosCatalogo(juegos) {
         placeholder="Buscar juego por nombre o descripción..."
         aria-label="Buscar juego"
       />
+      <button type="button" id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar filtros</button>
+    </div>
+    <div class="filtros-row-bottom">
       <select id="filtroGenero" class="filtro-control" aria-label="Filtrar por género">
         <option value="">Todos los géneros</option>
         ${generos.map((g) => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join("")}
@@ -83,7 +86,6 @@ function inicializarFiltrosCatalogo(juegos) {
         <option value="precio_desc">Precio: mayor a menor</option>
         <option value="nombre_asc">Nombre: A - Z</option>
       </select>
-      <button type="button" id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
     </div>
     <p id="catalogoResultadosCount" class="catalogo-resultados-count" aria-live="polite"></p>
   `;
