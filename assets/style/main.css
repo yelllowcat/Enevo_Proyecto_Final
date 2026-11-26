@@ -2499,3 +2499,39 @@ tbody tr td {
   width: 20px;
   height: 20px;
 }
+
+/* ====== PUNTO 1: ACCIONES RÁPIDAS EN TARJETAS DEL HOME ====== */
+.card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.card-actions .btn-mas-detalles,
+.card-actions .btn-agregar-rapido {
+  flex: 1 1 140px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btn-agregar-rapido {
+  background-color: #2e7d32;
+  color: #fff;
+  border: 1px solid #388e3c;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-agregar-rapido:hover:not(:disabled) {
+  background-color: #1b5e20;
+}
+
+.btn-agregar-rapido.added {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.btn-agregar-rapido:disabled {
+  opacity: 0.75;
+  cursor: wait;
+}
