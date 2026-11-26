@@ -122,7 +122,7 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-logo">
-                <img src="../assets/img/LogoEnevo.png" alt="Logo Enevo">
+                <img src="../assets/img/LogoEnevo.png" alt="Logo Enevo" loading="lazy" decoding="async" >
                 <p>© 2025 – Todos los derechos reservados</p>
             </div>
         </div>

@@ -91,7 +91,7 @@ $userName = $_SESSION['user_nombre'] ?? 'Usuario';
     <footer class="site-footer" style="margin-top:20px;">
         <div class="footer-inner">
             <div class="footer-logo">
-                <img src="../assets/img/LogoEnevo.png" alt="Enevo Logo">
+                <img src="../assets/img/LogoEnevo.png" alt="Enevo Logo" loading="lazy" decoding="async" >
                 <p>© 2025 – Todos los derechos reservados</p>
             </div>
         </div>

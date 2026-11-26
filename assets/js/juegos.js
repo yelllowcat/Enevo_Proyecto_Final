@@ -178,12 +178,18 @@ function mostrarJuegos(juegos) {
       .map((tag) => `<span class="game-meta-tag">${escapeHtml(tag)}</span>`)
       .join("");
 
+    const encodedId = encodeURIComponent(juego.id);
     card.innerHTML = `
-      <img
-        src="${rutaImg}juego_${encodeURIComponent(juego.id)}.jpg"
-        alt="${escapeHtml(juego.nombre)}"
-        onerror="this.onerror=null;this.src='${rutaImg}LogoEnevo.png';"
-      />
+      <picture>
+        <source srcset="${rutaImg}juego_${encodedId}.webp" type="image/webp" />
+        <img
+          src="${rutaImg}juego_${encodedId}.jpg"
+          alt="${escapeHtml(juego.nombre)}"
+          loading="lazy"
+          decoding="async"
+          onerror="this.onerror=null;this.src='${rutaImg}LogoEnevo.png';"
+        />
+      </picture>
       <div class="info">
         <div>
           <h3>${escapeHtml(juego.nombre)}</h3>

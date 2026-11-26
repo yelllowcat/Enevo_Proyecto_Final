@@ -97,12 +97,19 @@ function mostrarDetalles(juego) {
     if (titulo) titulo.textContent = juego.nombre;
 
     if (img) {
-        img.src = `../assets/img/juego_${juego.id}.jpg`;
+        const basePath = `../assets/img/juego_${juego.id}`;
+        img.decoding = "async";
+        img.setAttribute("fetchpriority", "high");
         img.alt = juego.nombre || "Juego";
         img.onerror = () => {
-            img.onerror = null;
-            img.src = "../assets/img/LogoEnevo.png";
+            if (img.src.endsWith(".webp")) {
+                img.src = `${basePath}.jpg`;
+            } else {
+                img.onerror = null;
+                img.src = "../assets/img/LogoEnevo.png";
+            }
         };
+        img.src = `${basePath}.webp`;
     }
 
     if (precio) {

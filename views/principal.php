@@ -17,6 +17,7 @@ $userName = $_SESSION['user_nombre'] ?? 'Usuario';
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="../assets/style/main.css" />
+  <link rel="preload" as="image" href="../assets/img/DarkSoulsGIF.webp" type="image/webp" />
 </head>
 
 <body>
@@ -43,7 +44,17 @@ $userName = $_SESSION['user_nombre'] ?? 'Usuario';
   <main>
     <section class="hero">
       <h1>Dark Souls</h1>
-      <img src="../assets/img/DarkSoulsGIF.gif" alt="Dark Souls Banner" />
+      <picture>
+        <source srcset="../assets/img/DarkSoulsGIF.webp" type="image/webp" />
+        <img
+          src="../assets/img/DarkSoulsGIF.gif"
+          alt="Dark Souls Banner"
+          width="900"
+          height="502"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
     </section>
 
     <section class="novedades">
@@ -59,7 +70,7 @@ $userName = $_SESSION['user_nombre'] ?? 'Usuario';
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-logo">
-        <img src="../assets/img/LogoEnevo.png" alt="Enevo Logo" />
+        <img src="../assets/img/LogoEnevo.png" alt="Enevo Logo" loading="lazy" decoding="async" />
         <p>© 2025 – Todos los derechos reservados</p>
       </div>
     </div>
