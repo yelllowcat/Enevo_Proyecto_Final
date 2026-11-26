@@ -81,7 +81,7 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
 
             <div class="user-section">
                 <a href="Perfil.php" class="user-link"><?php echo htmlspecialchars($userName); ?></a>
-                <button id="logoutBtn" class="logout-btn" title="Cerrar sesión">
+                <button id="logoutBtn" type="button" class="logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
                     <img src="../assets/img/cerrar-sesion.png" alt="Cerrar sesión" />
                 </button>
             </div>
@@ -202,11 +202,6 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
 
     <script src="../assets/js/main.js"></script>
     <script>
-        // Logout SIN confirmación - cierra sesión directamente
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            window.location.href = '../assets/app/controllers/LogoutController.php';
-        });
-
         // Controles de cantidad (+ / -), eliminar ítem y vaciar carrito con confirmación
         async function actualizarCarritoAccion(action, idJuego = null) {
             const body = new URLSearchParams();

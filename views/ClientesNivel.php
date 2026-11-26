@@ -46,7 +46,7 @@
 
             <div class="user-section">
                 <span class="user-link"><?php echo htmlspecialchars($userName); ?></span>
-                <button id="logoutBtn" class="logout-btn">
+                <button id="logoutBtn" type="button" class="logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
                     <img src="../assets/img/cerrar-sesion.png" alt="Cerrar sesión" />
                 </button>
             </div>

@@ -48,7 +48,7 @@ $historial = $compraModel->obtenerHistorialCompras($_SESSION['user_id']);
 
             <div class="user-section">
                 <a href="Perfil.php" class="user-link active"><?php echo htmlspecialchars($userName); ?></a>
-                <button id="logoutBtn" class="logout-btn">
+                <button id="logoutBtn" type="button" class="logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
                     <img src="../assets/img/cerrar-sesion.png" alt="Cerrar sesión" />
                 </button>
             </div>
@@ -122,11 +122,6 @@ $historial = $compraModel->obtenerHistorialCompras($_SESSION['user_id']);
     <!-- Scripts -->
     <script src="../assets/js/main.js"></script>
     <script>
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            window.location.href = '../assets/app/controllers/LogoutController.php';
-        });
-
         function descargarPDF() {
             showNotification({ message: 'Función de descarga de PDF en desarrollo', type: 'info', autoHide: 2500 });
         }

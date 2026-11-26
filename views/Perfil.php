@@ -52,7 +52,7 @@ $compras_faltantes = $datosPerfil['compras_faltantes'];
             <a href="Carrito.php">Carrito</a>
             <div class="user-section">
                 <a class="user-link active"><?php echo htmlspecialchars($userName); ?></a>
-                <button id="logoutBtn" class="logout-btn">
+                <button id="logoutBtn" type="button" class="logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
                     <img src="../assets/img/cerrar-sesion.png" alt="Cerrar sesión" />
                 </button>
             </div>

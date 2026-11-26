@@ -52,7 +52,7 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
 
             <div class="user-section">
                 <a href="Perfil.php" class="user-link"><?php echo htmlspecialchars($userName); ?></a>
-                <button id="logoutBtn" class="logout-btn" title="Cerrar sesión">
+                <button id="logoutBtn" type="button" class="logout-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
                     <img src="../assets/img/cerrar-sesion.png" alt="Cerrar sesión" />
                 </button>
             </div>
@@ -130,11 +130,6 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
 
     <script src="../assets/js/main.js"></script>
     <script>
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            window.location.href = '../assets/app/controllers/LogoutController.php';
-        });
-
         // Confirmar compra
         document.getElementById('btnConfirmarCompra').addEventListener('click', function() {
             const btn = this;

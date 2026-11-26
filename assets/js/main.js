@@ -243,15 +243,33 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ===========================================================
-  //                     CERRAR SESIÓN
+  //             CERRAR SESIÓN CON CONFIRMACIÓN
   // ===========================================================
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
+    if (!logoutBtn.getAttribute("title")) {
+      logoutBtn.setAttribute("title", "Cerrar sesión");
+    }
+    if (!logoutBtn.getAttribute("aria-label")) {
+      logoutBtn.setAttribute("aria-label", "Cerrar sesión");
+    }
     logoutBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      window.location.href = inViews
+      const logoutUrl = inViews
         ? "../assets/app/controllers/LogoutController.php"
         : "assets/app/controllers/LogoutController.php";
+
+      if (typeof window.showNotification === "function") {
+        window.showNotification({
+          message: "¿Estás seguro de que deseas cerrar tu sesión?",
+          type: "info",
+          primaryText: "Cerrar sesión",
+          primaryHref: logoutUrl,
+          secondaryText: "Cancelar",
+        });
+      } else {
+        window.location.href = logoutUrl;
+      }
     });
   }
 
