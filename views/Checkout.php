@@ -128,6 +128,7 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
         </div>
     </footer>
 
+    <script src="../assets/js/main.js"></script>
     <script>
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', function() {

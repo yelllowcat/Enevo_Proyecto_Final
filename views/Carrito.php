@@ -153,44 +153,6 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
         document.getElementById('logoutBtn').addEventListener('click', function() {
             window.location.href = '../assets/app/controllers/LogoutController.php';
         });
-        
-        // Actualizar contador del carrito
-        function actualizarContadorCarrito() {
-            fetch('../assets/app/controllers/CarritoController.php?action=get')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Crear o actualizar contador
-                        let contador = document.getElementById('cart-count');
-                        if (!contador) {
-                            contador = document.createElement('span');
-                            contador.id = 'cart-count';
-                            contador.style.cssText = `
-                                background: #f44336;
-                                color: white;
-                                border-radius: 50%;
-                                padding: 2px 8px;
-                                font-size: 12px;
-                                margin-left: 5px;
-                                display: inline-block;
-                            `;
-                            
-                            // Insertar después del enlace del carrito
-                            const carritoLink = document.querySelector('a[href="Carrito.php"], a.active');
-                            if (carritoLink) {
-                                carritoLink.appendChild(contador);
-                            }
-                        }
-                        
-                        contador.textContent = data.total_items || 0;
-                        contador.style.display = data.total_items > 0 ? 'inline-block' : 'none';
-                    }
-                })
-                .catch(console.error);
-        }
-        
-        // Actualizar al cargar
-        document.addEventListener('DOMContentLoaded', actualizarContadorCarrito);
 
         // Manejar pago con puntos
         const btnPagarPuntos = document.getElementById('btn-pagar-puntos');

@@ -319,6 +319,53 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
+  // ===========================================================
+  //      CONTADOR GLOBAL DEL CARRITO EN BARRA DE NAVEGACIÓN
+  // ===========================================================
+  window.actualizarContadorCarritoGlobal = async function () {
+    const pathname = window.location.pathname;
+    if (pathname.includes("Admin") || pathname.includes("NoLogin") || pathname.includes("login") || pathname.includes("registro")) {
+      return;
+    }
+
+    const navLinks = Array.from(document.querySelectorAll(".nav-links a"));
+    const carritoLink =
+      navLinks.find((a) => /carrito/i.test(a.getAttribute("href") || "")) ||
+      navLinks.find((a) => a.textContent.trim().toLowerCase().startsWith("carrito"));
+
+    if (!carritoLink || carritoLink.classList.contains("btn-carrito")) return;
+
+    const cartEndpoint = inViews
+      ? "../assets/app/controllers/CarritoController.php?action=get"
+      : "assets/app/controllers/CarritoController.php?action=get";
+
+    try {
+      const res = await fetch(cartEndpoint, { credentials: "same-origin" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !data.success) return;
+
+      const totalItems = Number(data.total_items) || 0;
+      let badge = document.getElementById("cart-count");
+      if (!badge) {
+        badge = document.createElement("span");
+        badge.id = "cart-count";
+        badge.className = "cart-badge";
+        badge.setAttribute("aria-live", "polite");
+        carritoLink.appendChild(badge);
+      }
+
+      badge.textContent = String(totalItems);
+      badge.style.display = totalItems > 0 ? "inline-flex" : "none";
+      badge.setAttribute(
+        "aria-label",
+        `${totalItems} ${totalItems === 1 ? "producto" : "productos"} en el carrito`
+      );
+    } catch (_) {}
+  };
+
+  window.actualizarContadorCarritoGlobal();
+
   // Verificar sesión real en servidor al pulsar el botón público de carrito
   document.body.addEventListener("click", async function (e) {
     const target = e.target.closest(".btn-carrito");
