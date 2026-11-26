@@ -24,10 +24,10 @@ $userName = $_SESSION['user_nombre'] ?? 'Admin';
 <body>
 
     <nav class="navbar">
-        <div class="logo">
+        <a href="principalAdmin.php" class="logo logo-link" aria-label="Ir al inicio de Enevo">
             <img src="../assets/img/LogoEnevo2.png" alt="Logo Enevo">
             <span class="brand">Enevo</span>
-        </div>
+        </a>
 
         <div class="nav-links">
             <a href="principalAdmin.php">Tienda</a>
@@ -45,6 +45,9 @@ $userName = $_SESSION['user_nombre'] ?? 'Admin';
     </nav>
 
     <main class="novedades" style="max-width: 760px; margin: 20px auto;">
+        <div class="back-nav-bar">
+            <a href="principalAdmin.php" class="back-nav-link">← Volver a la tienda</a>
+        </div>
         <div class="details-card">
 
             <h1 id="game-title" class="details-title">Cargando...</h1>

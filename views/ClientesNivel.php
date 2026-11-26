@@ -33,10 +33,10 @@
 
     <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="logo">
+        <a href="principalAdmin.php" class="logo logo-link" aria-label="Ir al inicio de Enevo">
             <img src="../assets/img/LogoEnevo2.png" alt="Logo Enevo">
             <span class="brand">Enevo</span>
-        </div>
+        </a>
 
         <div class="nav-links">
             <a href="principalAdmin.php">Tienda</a>

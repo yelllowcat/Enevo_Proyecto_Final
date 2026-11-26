@@ -36,10 +36,10 @@ $historial = $compraModel->obtenerHistorialCompras($_SESSION['user_id']);
 
     <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="logo">
+        <a href="principal.php" class="logo logo-link" aria-label="Ir al inicio de Enevo">
             <img src="../assets/img/LogoEnevo2.png" alt="Logo Enevo">
             <span class="brand">Enevo</span>
-        </div>
+        </a>
 
         <div class="nav-links">
             <a href="principal.php">Tienda</a>
@@ -57,6 +57,10 @@ $historial = $compraModel->obtenerHistorialCompras($_SESSION['user_id']);
 
     <main>
         <section class="historial-container">
+
+            <div class="back-nav-bar">
+                <a href="Perfil.php" class="back-nav-link">← Volver a mi perfil</a>
+            </div>
 
             <h2 class="historial-title">Historial de compras</h2>
 
