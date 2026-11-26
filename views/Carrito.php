@@ -282,6 +282,11 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                         const modal = document.getElementById('globalNotification');
                         if (modal) modal.classList.add('oculto');
 
+                        const originalText = btnPagarPuntos.textContent;
+                        btnPagarPuntos.disabled = true;
+                        btnPagarPuntos.setAttribute('aria-busy', 'true');
+                        btnPagarPuntos.textContent = 'Procesando pago...';
+
                         fetch('../assets/app/controllers/CompraController.php', {
                             method: 'POST',
                             headers: {
@@ -292,6 +297,7 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
+                                btnPagarPuntos.textContent = '¡Pago realizado!';
                                 showNotification({
                                     message: data.message || 'Compra con puntos realizada',
                                     type: 'success',
@@ -299,7 +305,13 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                                     primaryText: 'Ver historial',
                                     primaryHref: 'HistorialCompras.php'
                                 });
+                                setTimeout(() => {
+                                    window.location.href = 'HistorialCompras.php';
+                                }, 2500);
                             } else {
+                                btnPagarPuntos.disabled = false;
+                                btnPagarPuntos.removeAttribute('aria-busy');
+                                btnPagarPuntos.textContent = originalText;
                                 if (data.message === 'Puntos insuficientes') {
                                     showNotification({
                                         message: 'Puntos insuficientes. Necesitas ' + (data.puntos_requeridos || 'N/A') + ' puntos. Tienes: ' + (data.puntos_actuales || 0),
@@ -314,6 +326,9 @@ $userName = $_SESSION['user_nombre'] ?? "Usuario";
                         })
                         .catch(err => {
                             console.error(err);
+                            btnPagarPuntos.disabled = false;
+                            btnPagarPuntos.removeAttribute('aria-busy');
+                            btnPagarPuntos.textContent = originalText;
                             showNotification({ message: 'Error en la petición. Intenta nuevamente.', type: 'error' });
                         });
                     },

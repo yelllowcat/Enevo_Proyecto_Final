@@ -82,6 +82,14 @@ function agregarCliente() {
     return;
   }
 
+  const btnGuardar = document.querySelector(".btn-cliente-guardar");
+  const originalText = btnGuardar ? btnGuardar.textContent : "";
+  if (btnGuardar) {
+    btnGuardar.disabled = true;
+    btnGuardar.setAttribute("aria-busy", "true");
+    btnGuardar.textContent = "Agregando...";
+  }
+
   const formData = new FormData();
   formData.append("accion", "crear");
   formData.append("nombre", nombre);
@@ -104,12 +112,25 @@ function agregarCliente() {
           window.location.href = "ClientesAdmin.php";
         }, 1400);
       } else {
+        if (btnGuardar) {
+          btnGuardar.disabled = false;
+          btnGuardar.removeAttribute("aria-busy");
+          btnGuardar.textContent = originalText;
+        }
         showNotification({ message: "Error: " + data.message, type: "error" });
       }
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("Error al agregar el cliente");
+      if (btnGuardar) {
+        btnGuardar.disabled = false;
+        btnGuardar.removeAttribute("aria-busy");
+        btnGuardar.textContent = originalText;
+      }
+      showNotification({
+        message: "Error al agregar el cliente. Intenta nuevamente.",
+        type: "error",
+      });
     });
 }
 
@@ -188,6 +209,14 @@ function guardarCambios() {
     return;
   }
 
+  const btnGuardar = document.querySelector(".btn-guardar");
+  const originalText = btnGuardar ? btnGuardar.textContent : "";
+  if (btnGuardar) {
+    btnGuardar.disabled = true;
+    btnGuardar.setAttribute("aria-busy", "true");
+    btnGuardar.textContent = "Guardando...";
+  }
+
   const formData = new FormData();
   formData.append("accion", "actualizar");
   formData.append("id", id);
@@ -210,11 +239,21 @@ function guardarCambios() {
           window.location.href = "ClientesAdmin.php";
         }, 1300);
       } else {
+        if (btnGuardar) {
+          btnGuardar.disabled = false;
+          btnGuardar.removeAttribute("aria-busy");
+          btnGuardar.textContent = originalText;
+        }
         showNotification({ message: "Error: " + data.message, type: "error" });
       }
     })
     .catch((error) => {
       console.error("Error:", error);
+      if (btnGuardar) {
+        btnGuardar.disabled = false;
+        btnGuardar.removeAttribute("aria-busy");
+        btnGuardar.textContent = originalText;
+      }
       showNotification({
         message: "Error al actualizar el cliente",
         type: "error",

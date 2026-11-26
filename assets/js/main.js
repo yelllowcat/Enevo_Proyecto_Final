@@ -136,7 +136,17 @@ document.addEventListener("DOMContentLoaded", function () {
         hasError = true;
       }
 
-      if (hasError) e.preventDefault();
+      if (hasError) {
+        e.preventDefault();
+        return;
+      }
+
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.setAttribute("aria-busy", "true");
+        submitBtn.textContent = "Iniciando sesión...";
+      }
     });
   }
 
@@ -238,7 +248,17 @@ document.addEventListener("DOMContentLoaded", function () {
         hasError = true;
       }
 
-      if (hasError) e.preventDefault();
+      if (hasError) {
+        e.preventDefault();
+        return;
+      }
+
+      const submitBtn = registerForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.setAttribute("aria-busy", "true");
+        submitBtn.textContent = "Creando cuenta...";
+      }
     });
   }
 
